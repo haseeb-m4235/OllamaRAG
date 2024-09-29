@@ -1,4 +1,4 @@
-from app import Flask, request, jsonify
+from flask import Flask, request, jsonify
 from RAG import RAG
 
 app = Flask(__name__)
