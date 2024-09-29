@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from RAG import RAG
 
 app = Flask(__name__)
-rag = RAG()
+rag = RAG("C:\\Users\\hasee\\Desktop\\Chabot\\OllamaRAG\\vdb")
 
 @app.route('/create_embeddings', methods=['POST'])
 def create_embeddings():
@@ -43,6 +43,7 @@ def ask_question():
 
     try:
         answer, context = rag.askQuestion(question)
+        #print("Answer: ", answer, "\nContext: ", context)
         return jsonify({"answer": answer, "context": context}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500

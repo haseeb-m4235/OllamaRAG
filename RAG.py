@@ -10,7 +10,7 @@ from langchain_core.prompts import ChatPromptTemplate
 
 #Initialize model and embeddings
 class RAG():
-    def __init__(self):
+    def __init__(self, vectorStorePath):
         self.RAG_TEMPLATE = """
 You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise.
 
@@ -21,6 +21,7 @@ You are an assistant for question-answering tasks. Use the following pieces of r
 Answer the following question:
 
 {question}"""
+        self.vectorStorePath = vectorStorePath
         self.rag_prompt = ChatPromptTemplate.from_template(self.RAG_TEMPLATE)
         self.local_embeddings = OllamaEmbeddings(model="nomic-embed-text")
         self.model = ChatOllama(model="llama3.2:1b")
@@ -44,7 +45,7 @@ Answer the following question:
         reader = reader.load()
 
         all_splits = self.text_splitter.split_documents(reader)
-        self.vectorstore = Chroma.from_documents(documents=all_splits, embedding=self.local_embeddings)
+        vectorstore = Chroma.from_documents(documents=all_splits, embedding=self.local_embeddings, persist_directory=self.vectorStorePath)
 
     def askQuestion(self, question):
         """
@@ -56,7 +57,11 @@ Answer the following question:
         Returns:
             tuple: A tuple containing the answer and the context retrieved from the vector store.
         """
-        docs = self.vectorstore.similarity_search(question)
+        vectorstore = Chroma(persist_directory=self.vectorStorePath, embedding_function=self.local_embeddings)
+        docs = vectorstore.similarity_search(question, k=5)
+        context = ""
+        for doc in docs:
+            context += doc.page_content.replace("\n", " ")
+            context += "\n\n"
         answer = self.chain.invoke({"context": docs, "question": question})
-        context = docs[0].page_content.replace("\n", " ")
         return answer, context
