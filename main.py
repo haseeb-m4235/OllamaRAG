@@ -1,7 +1,9 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from RAG import RAG
 
 app = Flask(__name__)
+CORS(app)
 rag = RAG("C:\\Users\\hasee\\Desktop\\Chabot\\OllamaRAG\\vdb")
 
 @app.route('/create_embeddings', methods=['POST'])
