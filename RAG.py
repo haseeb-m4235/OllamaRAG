@@ -69,3 +69,5 @@ class RAG():
             context += "\n\n"
         answer = self.chain.invoke({"context": docs, "question": question})
         return answer, context
+    
+    
