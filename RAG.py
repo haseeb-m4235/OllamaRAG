@@ -12,15 +12,15 @@ from langchain_core.prompts import ChatPromptTemplate
 class RAG():
     def __init__(self, vectorStorePath):
         self.RAG_TEMPLATE = """
-You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise.
+        You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise.
 
-<context>
-{context}
-</context>
+        <context>
+        {context}
+        </context>
 
-Answer the following question:
+        Answer the following question:
 
-{question}"""
+        {question}"""
         self.vectorStorePath = vectorStorePath
         self.rag_prompt = ChatPromptTemplate.from_template(self.RAG_TEMPLATE)
         self.local_embeddings = OllamaEmbeddings(model="nomic-embed-text")
@@ -45,7 +45,11 @@ Answer the following question:
         reader = reader.load()
 
         all_splits = self.text_splitter.split_documents(reader)
+        print("Splits done")
         vectorstore = Chroma.from_documents(documents=all_splits, embedding=self.local_embeddings, persist_directory=self.vectorStorePath)
+        reader.clear()
+        print("Vector DB saved")
+        return
 
     def askQuestion(self, question):
         """
